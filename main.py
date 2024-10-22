@@ -4,6 +4,7 @@ import json
 from process_data_db import fetch_rss
 import sqlite3
 import pandas as pd
+from datetime import datetime, timedelta
 
 st.set_page_config(layout='wide')
 
@@ -13,6 +14,10 @@ with open("data/news_site.json", 'r', encoding='utf-8') as f:
 
 rss_sources = data['rss_sources']
 
+now = datetime.now().replace(microsecond=0)
+two_hours_ago = now - timedelta(hours=2)
+print (now)
+print(two_hours_ago)
 
 t1, t2, t3 = st.columns([1,3,1])
 m1, m2 = st.columns([1,3], gap='medium')
@@ -27,7 +32,23 @@ cursor.execute('SELECT title, link, description, published FROM news_articles')
 articles = cursor.fetchall()
 conn.close()
 
+# Tạo DataFrame từ dữ liệu
 df_articles = pd.DataFrame(articles, columns=['Title', 'Link', 'Description', 'Published'])
+
+
+# Loại bỏ phần ngày trong tuần và múi giờ (ví dụ: "Tue, " và " +0700")
+df_articles['Published'] = df_articles['Published'].str.replace(r'^[A-Za-z]{3}, ', '', regex=True)
+df_articles['Published'] = df_articles['Published'].str.replace(r' \+\d{4}', '', regex=True)
+# print(df_articles['Published'])
+# df_articles['Published'] = df_articles['Published'].astype(str)
+# print(df_articles['Published'])
+
+
+# Chuyển đổi cột Published sang kiểu datetime
+# df_articles['Published'] = datetime.strptime(df_articles['Published'], '%d %b %Y %H:%M:%S')
+
+# Lọc các bài viết trong vòng 2 tiếng gần nhất
+# df_articles = df_articles[df_articles['Published'] >= two_hours_ago]
 
 with t2.container(height=140, border=False):
 	# st.markdown("`Title`")
