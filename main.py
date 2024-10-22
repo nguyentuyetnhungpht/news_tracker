@@ -1,12 +1,14 @@
 import streamlit as st
 from process_data import fetch_rss_data
 import json
-
+from process_data_db import fetch_rss
+import sqlite3
+import pandas as pd
 
 st.set_page_config(layout='wide')
 
 #Read JSON file
-with open("news_site.json", 'r', encoding='utf-8') as f:
+with open("data/news_site.json", 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 rss_sources = data['rss_sources']
@@ -15,7 +17,17 @@ rss_sources = data['rss_sources']
 t1, t2, t3 = st.columns([1,3,1])
 m1, m2 = st.columns([1,3], gap='medium')
 
-vnExpress_df = fetch_rss_data()
+fetch_rss()
+# vnExpress_df = fetch_rss_data()
+
+conn = sqlite3.connect('data/news_db.db')
+cursor = conn.cursor()
+
+cursor.execute('SELECT title, link, description, published FROM news_articles')
+articles = cursor.fetchall()
+conn.close()
+
+df_articles = pd.DataFrame(articles, columns=['Title', 'Link', 'Description', 'Published'])
 
 with t2.container(height=140, border=False):
 	# st.markdown("`Title`")
@@ -34,12 +46,12 @@ with m1:
 with m2.container(height=500):
     # Hiển thị dữ liệu trong Streamlit
     st.subheader("Tin tức mới nhất")
-    st.write(f"Tổng số bài viết: {len(vnExpress_df)}")
-    for index, row in vnExpress_df.iterrows():
-        st.markdown(f"<h3 style='font-size:24px; color:#FF82AB;'>{row['title']}</h3>", 
+    st.write(f"Tổng số bài viết: {len(df_articles)}")
+    for index, row in df_articles.iterrows():
+        st.markdown(f"<h3 style='font-size:24px; color:#FF82AB;'>{row['Title']}</h3>", 
                     unsafe_allow_html=True)
-        st.write(f"Link: {row['link']}")
-        st.write(f"Mô tả: {row['description']}")
-        st.write(f"Thời gian đăng: {row['published']}")
+        st.write(f"Link: {row['Link']}")
+        st.write(f"Mô tả: {row['Description']}")
+        st.write(f"Thời gian đăng: {row['Published']}")
         st.write("---")
 
