@@ -1,14 +1,15 @@
 import feedparser
 import pandas as pd
 from bs4 import BeautifulSoup
-from datetime import datetime
 import json
 
 #Read JSON file
-with open("news_site.json", 'r', encoding='utf-8') as f:
+with open("data/news_site.json", 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 rss_sources = data['rss_sources']
+
+
 all_articles = []
 
 def fetch_rss_data():
