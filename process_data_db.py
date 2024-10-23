@@ -34,10 +34,11 @@ def fetch_rss():
                     exists = cursor.fetchone()[0]
 
                     if exists == 0:
+                        published_clean = entry.published.split(' +')[0] if ' +' in entry.published else entry.published
                         cursor.execute('''
-                            INSERT INTO news_articles (title, link, description, published, category, source)
+                            INSERT OR IGNORE INTO news_articles (title, link, description, published, category, source)
                             VALUES (?, ?, ?, ?, ?, ?)
-                        ''', (entry.title, entry.link, description_text, entry.published, category, source))
+                        ''', (entry.title, entry.link, description_text, published_clean, category, source))
                         total_articles += 1
             else:
                 print(f"Có lỗi khi tải RSS feed từ {url}của {source}")
