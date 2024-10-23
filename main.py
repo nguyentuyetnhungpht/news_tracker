@@ -1,5 +1,4 @@
 import streamlit as st
-from process_data import fetch_rss_data
 import json
 from process_data_db import fetch_rss
 import sqlite3
@@ -18,7 +17,6 @@ t1, t2, t3 = st.columns([1,3,1])
 m1, m2 = st.columns([1,3], gap='medium')
 
 fetch_rss()
-# vnExpress_df = fetch_rss_data()
 
 conn = sqlite3.connect('data/news_db.db')
 cursor = conn.cursor()
